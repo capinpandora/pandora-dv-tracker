@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>DV Tracker · Pandora LATAM</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --black: #111;
+  --white: #fff;
+  --pink: #F5A7B8;
+  --pink-light: #FDF0F3;
+  --gray-1: #f7f7f7;
+  --gray-2: #efefef;
+  --gray-3: #d0d0d0;
+  --gray-4: #999;
+  --gray-5: #555;
+  --green: #1a7a3c; --green-bg: #edf7f1;
+  --blue: #2c5fa8;  --blue-bg: #eef3fc;
+  --orange: #c05000; --orange-bg: #fff0e6;
+  --red-soft: #fceef1;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--white); color: var(--black); font-size: 13px; min-height: 100vh; }
+#fb-banner { background: #fffbf0; border-bottom: 1px solid #f0d080; padding: 8px 32px; font-size: 12px; color: #7a5800; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+#fb-banner button { background: var(--black); color: var(--white); border: none; padding: 4px 14px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit; border-radius: 2px; }
+#fb-banner.ok { background: #f0faf4; border-color: #90d4a8; color: #1a5c30; }
+header { background: var(--white); border-bottom: 1px solid var(--gray-2); padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-mark { width: 34px; height: 34px; background: var(--pink); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.logo-mark svg { width: 18px; height: 18px; }
+.logo-name { font-size: 16px; font-weight: 700; letter-spacing: -.01em; color: var(--black); }
+.logo-tag { font-size: 11px; color: var(--gray-4); font-weight: 400; margin-left: 6px; }
+.hdr-actions { display: flex; align-items: center; gap: 8px; }
+#last-update { font-size: 11px; color: var(--gray-4); margin-right: 4px; }
+.btn { height: 34px; padding: 0 16px; border-radius: 6px; border: 1px solid var(--gray-2); background: var(--white); color: var(--black); font-size: 12px; font-weight: 500; font-family: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; transition: background .12s, border-color .12s; }
+.btn:hover { background: var(--gray-1); border-color: var(--gray-3); }
+.btn.primary { background: var(--pink); border-color: var(--pink); color: var(--black); font-weight: 600; }
+.btn.primary:hover { background: #f090a8; border-color: #f090a8; }
+.btn.sm { height: 28px; padding: 0 12px; font-size: 11px; border-radius: 4px; }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--gray-5); }
+.btn.ghost:hover { background: var(--gray-1); border-color: var(--gray-2); color: var(--black); }
+.btn.danger { color: #c0304a; border-color: #f0c0c8; }
+.btn.danger:hover { background: var(--red-soft); }
+.btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+.toolbar { padding: 10px 32px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; background: var(--gray-1); border-bottom: 1px solid var(--gray-2); }
+.search-wrap { position: relative; flex: 1; min-width: 180px; max-width: 260px; }
+.search-wrap svg { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); width: 13px; height: 13px; color: var(--gray-4); }
+.search-wrap input { width: 100%; height: 34px; padding: 0 10px 0 28px; border: 1px solid var(--gray-2); border-radius: 6px; font-size: 12px; background: var(--white); color: var(--black); font-family: inherit; }
+.search-wrap input:focus { outline: none; border-color: var(--pink); }
+select.filter { height: 34px; padding: 0 10px; border: 1px solid var(--gray-2); border-radius: 6px; font-size: 12px; background: var(--white); color: var(--black); font-family: inherit; cursor: pointer; }
+select.filter:focus { outline: none; border-color: var(--pink); }
+main { max-width: 1160px; margin: 0 auto; padding: 24px 32px; }
+.sum-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
+.sum-card { background: var(--white); border: 1px solid var(--gray-2); border-radius: 8px; padding: 14px 18px; min-width: 110px; flex: 1; }
+.sum-card .val { font-size: 26px; font-weight: 700; color: var(--black); letter-spacing: -.02em; line-height: 1; }
+.sum-card .lbl { font-size: 11px; color: var(--gray-4); margin-top: 4px; font-weight: 500; }
+.sum-card.pink-card { background: var(--pink-light); border-color: #f5c8d4; }
+.sum-card.pink-card .val { color: #b03058; }
+.sum-card .val.green { color: var(--green); }
+.sum-card .val.blue  { color: var(--blue); }
+.sum-card .val.orange{ color: var(--orange); }
+.sum-card.wide { flex: 1.6; min-width: 160px; }
+.sum-card .val-sm { font-size: 13px; font-weight: 600; color: var(--black); margin-top: 5px; }
+.camp-card { background: var(--white); border: 1px solid var(--gray-2); border-radius: 10px; margin-bottom: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.05); transition: box-shadow .15s; }
+.camp-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+.camp-head { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; gap: 12px; }
+.camp-head:hover { background: var(--pink-light); }
+.camp-name { font-size: 14px; font-weight: 700; color: var(--black); }
+.camp-meta { font-size: 11px; color: var(--gray-4); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 3px; }
+.camp-right { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
+.chevron { transition: transform .2s; color: var(--gray-3); }
+.chevron.open { transform: rotate(180deg); }
+.icon-btn { background: none; border: none; cursor: pointer; color: var(--gray-4); padding: 4px; border-radius: 4px; display: inline-flex; }
+.icon-btn:hover { color: var(--black); background: var(--gray-2); }
+.icon-btn svg { width: 14px; height: 14px; }
+.camp-body { border-top: 1px solid var(--gray-2); }
+.ctry-sec { border-bottom: 1px solid var(--gray-2); }
+.ctry-sec:last-child { border-bottom: none; }
+.ctry-head { padding: 9px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; background: var(--gray-1); }
+.ctry-head:hover { background: var(--pink-light); }
+.ctry-left { display: flex; align-items: center; gap: 7px; }
+.ctry-flag { font-size: 17px; }
+.ctry-name { font-size: 12px; font-weight: 600; color: var(--black); }
+.ctry-count { font-size: 11px; color: var(--gray-4); }
+.ctry-right { display: flex; align-items: center; gap: 5px; }
+.dv-grid { padding: 14px 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 10px; }
+.dv-card { border: 1px solid var(--gray-2); border-radius: 8px; overflow: hidden; background: var(--white); transition: box-shadow .12s, transform .12s; }
+.dv-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.1); transform: translateY(-1px); }
+.dv-card.is-paused { opacity: .6; }
+.dv-thumb { width: 100%; aspect-ratio: 16/9; background: var(--gray-1); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; cursor: pointer; }
+.dv-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.no-img { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--gray-3); font-size: 10px; font-weight: 500; }
+.no-img svg { width: 20px; height: 20px; }
+.thumb-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; letter-spacing: .10em; text-transform: uppercase; }
+.thumb-overlay.paused { background: rgba(160,70,0,.68); color: var(--white); }
+.thumb-upload { position: absolute; inset: 0; background: rgba(0,0,0,.38); display: none; align-items: center; justify-content: center; }
+.thumb-upload svg { width: 18px; height: 18px; color: var(--white); }
+.dv-card:hover .thumb-upload { display: flex; }
+.dv-info { padding: 9px 11px; }
+.dv-code { font-size: 12px; font-weight: 700; color: var(--black); font-family: 'SF Mono', 'Fira Code', monospace; }
+.dv-stock { font-size: 10px; color: var(--gray-4); margin-top: 3px; display: flex; align-items: center; gap: 3px; }
+.dv-row { display: flex; align-items: center; justify-content: space-between; margin-top: 7px; }
+.dv-actions { display: flex; gap: 1px; }
+.badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+.badge.active { background: var(--green-bg); color: var(--green); }
+.badge.new    { background: var(--blue-bg);  color: var(--blue); }
+.badge.paused { background: var(--orange-bg);color: var(--orange); }
+.sub-log { border-top: 1px solid var(--gray-2); padding: 14px 20px; background: var(--pink-light); }
+.sub-log-head { display: flex; align-items: center; justify-content: space-between; font-size: 11px; font-weight: 700; color: #b03058; margin-bottom: 10px; }
+.sub-log-date { font-size: 10px; font-weight: 500; color: var(--gray-5); background: var(--white); border: 1px solid var(--gray-2); padding: 2px 8px; border-radius: 20px; }
+.sub-log-rows { display: flex; flex-direction: column; gap: 5px; }
+.sub-log-row { display: flex; align-items: center; gap: 8px; font-size: 11px; padding: 7px 12px; background: var(--white); border: 1px solid var(--gray-2); border-radius: 6px; }
+.sub-out { font-family: monospace; font-weight: 700; color: var(--orange); text-decoration: line-through; opacity: .8; }
+.sub-in  { font-family: monospace; font-weight: 700; color: var(--green); }
+.sub-date { margin-left: auto; font-size: 10px; color: var(--gray-4); white-space: nowrap; }
+.list-panel { margin: 0 20px 12px; border: 1px solid var(--gray-2); border-radius: 8px; overflow: hidden; }
+.list-head { padding: 7px 12px; background: var(--gray-1); border-bottom: 1px solid var(--gray-2); display: flex; align-items: center; justify-content: space-between; font-size: 10px; font-weight: 600; color: var(--gray-5); }
+.list-body { padding: 10px 12px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; line-height: 1.9; background: var(--white); white-space: pre; overflow-x: auto; color: var(--black); }
+.copy-btn { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; padding: 3px 9px; border-radius: 4px; border: 1px solid var(--gray-2); background: var(--white); cursor: pointer; color: var(--gray-5); font-family: inherit; font-weight: 600; }
+.copy-btn:hover { border-color: var(--pink); color: #b03058; background: var(--pink-light); }
+.copy-btn.ok { color: var(--green); border-color: var(--green); background: var(--green-bg); }
+.camp-foot { border-top: 1px solid var(--gray-2); padding: 10px 20px; background: var(--gray-1); display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; z-index: 500; padding: 16px; }
+.modal { background: var(--white); border-radius: 12px; width: 480px; max-width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.15); border: 1px solid var(--gray-2); }
+.modal-head { padding: 20px 22px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--gray-2); }
+.modal-head h2 { font-size: 15px; font-weight: 700; }
+.modal-body { padding: 18px 22px; }
+.modal-foot { padding: 0 22px 20px; display: flex; justify-content: flex-end; gap: 8px; }
+.form-row { margin-bottom: 14px; }
+.form-row label { display: block; font-size: 11px; font-weight: 600; color: var(--gray-5); margin-bottom: 5px; }
+.form-row input, .form-row select, .form-row textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--gray-2); border-radius: 6px; font-size: 13px; font-family: inherit; color: var(--black); background: var(--white); }
+.form-row input:focus, .form-row select:focus { outline: none; border-color: var(--pink); }
+.form-row textarea { min-height: 70px; resize: vertical; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.flags-picker { display: flex; flex-wrap: wrap; gap: 7px; }
+.flag-opt { padding: 5px 11px; border-radius: 6px; border: 1px solid var(--gray-2); cursor: pointer; font-size: 13px; user-select: none; }
+.flag-opt:hover { border-color: var(--pink); }
+.flag-opt.sel { border-color: var(--pink); background: var(--pink-light); font-weight: 600; }
+.sub-info-box { background: var(--pink-light); border: 1px solid #f5c8d4; border-radius: 6px; padding: 10px 12px; margin-bottom: 14px; font-size: 13px; color: #b03058; }
+.sub-info-box strong { color: var(--black); }
+.img-area { border: 1.5px dashed var(--gray-3); border-radius: 6px; padding: 20px; text-align: center; cursor: pointer; font-size: 12px; color: var(--gray-4); }
+.img-area:hover { border-color: var(--pink); color: var(--black); }
+.img-area svg { width: 22px; height: 22px; display: block; margin: 0 auto 6px; }
+.img-preview { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 6px; border: 1px solid var(--gray-2); display: block; }
+.bulk-box textarea { width: 100%; padding: 10px; border: 1px solid var(--gray-2); border-radius: 6px; font-size: 12px; font-family: monospace; min-height: 100px; resize: vertical; }
+#toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--black); color: var(--white); padding: 9px 18px; border-radius: 8px; font-size: 12px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 1000; white-space: nowrap; }
+#toast.show { opacity: 1; }
+.empty-msg { text-align: center; padding: 48px; color: var(--gray-4); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div id="fb-banner">
+  <span>Conectando ao Firebase...</span>
+</div>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="11" r="5.5" stroke="white" stroke-width="1.8"/>
+        <line x1="7" y1="5.5" x2="6" y2="2.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="9" y1="5" x2="9" y2="2" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="11" y1="5.5" x2="12" y2="2.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="7" cy="6.2" r=".8" fill="white"/>
+        <circle cx="9" cy="5.8" r=".8" fill="white"/>
+        <circle cx="11" cy="6.2" r=".8" fill="white"/>
+      </svg>
+    </div>
+    <div>
+      <span class="logo-name">PANDORA <span class="logo-tag">DV Tracker · LATAM</span></span>
+    </div>
+  </div>
+  <div class="hdr-actions">
+    <span id="last-update"></span>
+    <button class="btn ghost" id="btnFetchImgs" onclick="fetchAllImages()">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      Buscar imágenes
+    </button>
+    <button class="btn ghost" onclick="exportCSV()">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      Exportar CSV
+    </button>
+    <button class="btn primary" onclick="openNewCamp()">
+      <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      Nueva campaña
+    </button>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="search-wrap">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="searchInput" placeholder="Buscar campaña o código DV..."/>
+  </div>
+  <select class="filter" id="campFilter"><option value="">Todas las campañas</option></select>
+  <select class="filter" id="countryFilter">
+    <option value="">Todos los países</option>
+    <option value="MX">🇲🇽 México</option>
+    <option value="BR">🇧🇷 Brasil</option>
+    <option value="PA">🇵🇦 Panamá</option>
+    <option value="CL">🇨🇱 Chile</option>
+    <option value="CO">🇨🇴 Colombia</option>
+    <option value="PE">🇵🇪 Perú</option>
+    <option value="AR">🇦🇷 Argentina</option>
+  </select>
+  <select class="filter" id="statusFilter">
+    <option value="">Todos los estados</option>
+    <option value="active">Activo</option>
+    <option value="new">Nuevo</option>
+    <option value="paused">Pausado</option>
+  </select>
+</div>
+
+<main>
+  <div class="sum-bar" id="sumBar"></div>
+  <div id="campList"></div>
+</main>
+
+<div id="modalContainer"></div>
+<div id="toast"></div>
+<input type="file" id="imgInput" accept="image/*" style="display:none;"/>
+<input type="file" id="xlsInput" accept=".xlsx,.xls,.csv" style="display:none;"/>
+
+<script type="module">
+const COUNTRIES={MX:{name:'México',flag:'🇲🇽'},BR:{name:'Brasil',flag:'🇧🇷'},PA:{name:'Panamá',flag:'🇵🇦'},CL:{name:'Chile',flag:'🇨🇱'},CO:{name:'Colombia',flag:'🇨🇴'},PE:{name:'Perú',flag:'🇵🇪'},AR:{name:'Argentina',flag:'🇦🇷'}};
+const STATUS={active:'Activo',paused:'Pausado',new:'Nuevo'};
+const LS='pandora_dv_v9';
+
+// ── Auto-busca imagem pelo código DV ────────────────────────────────────────
+const IMG_URL_TEMPLATES = [
+  'https://us.pandora.net/dw/image/v2/AAVX_PRD/on/demandware.static/-/Sites-pandora-master-catalog/default/dwcfe7065f/productimages/main/{DV}_RGB.jpg?sw=300&sh=300&sm=fit&sfrm=png&bgcolor=FFFFFF',
+  'https://dk.pandora.net/dw/image/v2/BFCR_PRD/on/demandware.static/-/Sites-pandora-master-catalog/default/dw85ec02e3/productimages/main/{DV}_RGB.JPG?sw=150&sh=150&sm=fit&sfrm=png&bgcolor=FFFFFF',
+  'https://pjlibweprod.blob.core.windows.net/library/442ff511-ccc3-4d8d-947d-ae3500b33e83/3e1b6321-8ede-4210-b4db-aff9006f242f/WEB_{DV}_RGB.png?sv=2014-02-14&sr=c&si=codehouse&sig=uhpX5Ct8Z3mtFo0FWRqfzUhFrfHErFcbhAyD5Xk2U5g%3D',
+  'https://pjlibweprod.blob.core.windows.net/library/ff68577d-9409-4137-a3b8-afef00884231/3d66ff8d-c570-47f8-a80f-afef008aae90/WEB_{DV}_RGB.png?sv=2014-02-14&sr=c&si=codehouse&sig=uhpX5Ct8Z3mtFo0FWRqfzUhFrfHErFcbhAyD5Xk2U5g%3D',
+  'https://pjlibweprod.blob.core.windows.net/library/7d502637-cf3b-45f3-8c5a-b07300ccac96/debedfb1-3421-4a58-9b63-b07300f6b132/WEB_{DV}_RGB.png?sv=2014-02-14&sr=c&si=codehouse&sig=uhpX5Ct8Z3mtFo0FWRqfzUhFrfHErFcbhAyD5Xk2U5g%3D',
+  'https://pjlibweprod.blob.core.windows.net/library/84e42102-5ad4-4acc-99fb-b07300cc7124/b1f8a9a7-771f-4362-acd1-b07300e49f67/WEB_{DV}_RGB.png?sv=2014-02-14&sr=c&si=codehouse&sig=uhpX5Ct8Z3mtFo0FWRqfzUhFrfHErFcbhAyD5Xk2U5g%3D',
+  'https://us.pandora.net/dw/image/v2/AAVX_PRD/on/demandware.static/-/Sites-pandora-master-catalog/default/dwb85057e5/productimages/singlepackshot/{DV}_RGB.jpg?sw=900&sh=900&sm=fit&sfrm=png&bgcolor=FFFFFF'
+];
+function getImgCandidates(dvCode){const enc=encodeURIComponent(dvCode);return IMG_URL_TEMPLATES.map(t=>t.replace(/\{DV\}/g,enc));}
+function autoLoadImg(dvCode,cb){
+  if(!dvCode){cb(null);return;}
+  const urls=getImgCandidates(dvCode);let idx=0;
+  function tryNext(){if(idx>=urls.length){cb(null);return;}const url=urls[idx++];const img=new Image();img.onload=()=>cb(url);img.onerror=tryNext;img.src=url;}
+  tryNext();
+}
+// ── Fim auto-busca ──────────────────────────────────────────────────────────
+let state={campaigns:[],collapsed:{},ctryCollapsed:{},lastUpdate:null};
+let search='',fCamp='',fCountry='',fStatus='';
+let pendingImg=null,fbOk=false;
+function uid(){return 'dv_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
+function cuid(){return 'c_'+Date.now().toString(36);}
+function fmtD(d){if(!d)return'—';const[y,m,dy]=d.split('-');return`${dy}/${m}/${y}`;}
+function fmtDT(iso){if(!iso)return'';return new Date(iso).toLocaleDateString('es-PA',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+function toast(msg){const e=document.getElementById('toast');e.textContent=msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2500);}
+window.toast=toast;
+function loadLocal(){try{const r=localStorage.getItem(LS);if(r)state=JSON.parse(r);}catch(e){}}
+function saveLocal(){state.lastUpdate=new Date().toISOString();localStorage.setItem(LS,JSON.stringify(state));}
+async function save(){saveLocal();if(fbOk)try{await window._fbSet(window._fbRef(window._db,'dvt'),state);}catch(e){}render();}
+
+async function initFB(cfg){
+  try{
+    const{initializeApp}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+    const{getDatabase,ref,set,get,onValue}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js');
+    const app=initializeApp(cfg);const dbi=getDatabase(app);
+    window._db=dbi;window._fbRef=ref;window._fbSet=set;fbOk=true;
+    const snap=await get(ref(dbi,'dvt'));
+    if(snap.exists()){state={...state,...snap.val()};if(!state.collapsed)state.collapsed={};if(!state.ctryCollapsed)state.ctryCollapsed={};}
+    onValue(ref(dbi,'dvt'),s=>{if(s.exists()){state={...state,...s.val()};render();}});
+    document.getElementById('fb-banner').className='ok';
+    document.getElementById('fb-banner').textContent='✅ Firebase conectado — datos sincronizados en tiempo real con el equipo.';
+  }catch(e){
+    document.getElementById('fb-banner').textContent='⚠️ Sin conexión Firebase — datos guardados solo localmente.';
+    console.warn('Firebase:',e);
+  }
+}
+
+function getSample(){
+  const mk=(code,st,sk)=>({id:uid(),code,status:st,stock:sk??'',img:'',subs:[]});
+  return{collapsed:{},ctryCollapsed:{},lastUpdate:new Date().toISOString(),campaigns:[
+    {id:'c1',name:"Mother's Day 2025",countries:['BR','MX','PA'],startDate:'2025-05-01',endDate:'2025-05-12',
+     dvs:{BR:[mk('DV-BR-001','active',120),mk('DV-BR-002','active',45),mk('DV-BR-003','paused',0)],
+          MX:[mk('DV-MX-001','active',200),mk('DV-MX-002','new',80)],
+          PA:[mk('DV-PA-001','active',60),mk('DV-PA-002','new',40)]}},
+    {id:'c2',name:'Brand Always On Q2',countries:['CO','PE','AR','CL'],startDate:'2025-04-01',endDate:'2025-06-30',
+     dvs:{CO:[mk('DV-CO-001','active',88),mk('DV-CO-002','active',33)],
+          PE:[mk('DV-PE-001','new',50),mk('DV-PE-002','active',22)],
+          AR:[mk('DV-AR-001','active',150),mk('DV-AR-002','active',77)],
+          CL:[mk('DV-CL-001','active',40),mk('DV-CL-002','paused',0),mk('DV-CL-003','active',18)]}}
+  ]};
+}
+
+async function init(){
+  loadLocal();
+  if(!state.campaigns||!state.campaigns.length)state=getSample();
+  if(!state.collapsed)state.collapsed={};if(!state.ctryCollapsed)state.ctryCollapsed={};
+  // Firebase credentials embedded — auto-connects for everyone
+  await initFB({
+    apiKey:"AIzaSyBpmLTWZSYCd6ldOOOhVQqV0v-jr5IVV48",
+    authDomain:"dv-tracker-latam.firebaseapp.com",
+    databaseURL:"https://dv-tracker-latam-default-rtdb.firebaseio.com",
+    projectId:"dv-tracker-latam",
+    appId:"1:1003624734352:web:df9217524de2e7309c8215"
+  });
+  render();
+  document.getElementById('searchInput').addEventListener('input',e=>{search=e.target.value;render();});
+  document.getElementById('campFilter').addEventListener('change',e=>{fCamp=e.target.value;render();});
+  document.getElementById('countryFilter').addEventListener('change',e=>{fCountry=e.target.value;render();});
+  document.getElementById('statusFilter').addEventListener('change',e=>{fStatus=e.target.value;render();});
+  document.getElementById('imgInput').addEventListener('change',e=>{
+    const f=e.target.files[0];if(!f||!pendingImg)return;
+    const r=new FileReader();r.onload=ev=>{pendingImg(ev.target.result);pendingImg=null;};r.readAsDataURL(f);e.target.value='';
+  });
+}
+
+function getFiltered(){
+  const q=search.toLowerCase();
+  return state.campaigns.filter(c=>{
+    if(fCamp&&c.name!==fCamp)return false;
+    if(fCountry&&!c.countries.includes(fCountry))return false;
+    if(fStatus){const cts=fCountry?[fCountry]:(c.countries||[]);if(!cts.some(ct=>((c.dvs||{})[ct]||[]).some(d=>d.status===fStatus)))return false;}
+    if(q){if(c.name.toLowerCase().includes(q))return true;const cts=fCountry?[fCountry]:(c.countries||[]);return cts.some(ct=>((c.dvs||{})[ct]||[]).some(d=>d.code.toLowerCase().includes(q)));}
+    return true;
+  });
+}
+
+function render(){
+  const sel=document.getElementById('campFilter');const cur=sel.value;
+  const names=[...new Set((state.campaigns||[]).map(c=>c.name))].sort();
+  sel.innerHTML='<option value="">Todas las campañas</option>'+names.map(n=>`<option value="${n}"${cur===n?' selected':''}>${n}</option>`).join('');
+  const camps=getFiltered();
+  const dvs=camps.flatMap(c=>{const cts=fCountry?[fCountry]:(c.countries||[]);return cts.flatMap(ct=>{const l=(c.dvs||{})[ct]||[];return fStatus?l.filter(d=>d.status===fStatus):l;});});
+  const subs=camps.flatMap(c=>{const cts=fCountry?[fCountry]:(c.countries||[]);return cts.flatMap(ct=>((c.dvs||{})[ct]||[]).flatMap(d=>d.subs||[]));});
+  const active=dvs.filter(d=>d.status==='active').length;
+  const nw=dvs.filter(d=>d.status==='new').length;
+  const paused=dvs.filter(d=>d.status==='paused').length;
+  const lu=state.lastUpdate?fmtDT(state.lastUpdate):'—';
+  document.getElementById('sumBar').innerHTML=`
+    <div class="sum-card"><div class="val">${camps.length}</div><div class="lbl">Campañas</div></div>
+    <div class="sum-card"><div class="val">${dvs.length}</div><div class="lbl">Total DVs</div></div>
+    <div class="sum-card"><div class="val green">${active}</div><div class="lbl">Activos</div></div>
+    <div class="sum-card"><div class="val blue">${nw}</div><div class="lbl">Nuevos</div></div>
+    <div class="sum-card"><div class="val orange">${paused}</div><div class="lbl">Pausados</div></div>
+    <div class="sum-card pink-card"><div class="val">${subs.length}</div><div class="lbl">Sustituciones</div></div>
+    <div class="sum-card wide"><div class="lbl">Última actualización</div><div class="val-sm">${lu}</div></div>`;
+  const el=document.getElementById('campList');
+  if(!camps.length){el.innerHTML='<div class="empty-msg">No se encontraron campañas.</div>';return;}
+  el.innerHTML=camps.map(renderCamp).join('');
+  attachEvents();
+  const lu2=document.getElementById('last-update');if(lu2&&state.lastUpdate)lu2.textContent='Actualizado '+lu;
+}
+
+function renderCamp(c){
+  const coll=state.collapsed[c.id];
+  const allDvs=Object.values(c.dvs||{}).flat();
+  const cnt={active:0,new:0,paused:0};allDvs.forEach(d=>{if(cnt[d.status]!==undefined)cnt[d.status]++;});
+  const total=allDvs.length;
+  const flags=(c.countries||[]).map(k=>COUNTRIES[k]?.flag||'').join(' ');
+  const badges=Object.entries(cnt).filter(([,v])=>v>0).map(([k,v])=>`<span class="badge ${k}">${v} ${STATUS[k]}</span>`).join('');
+  const allSubs=[];
+  Object.entries(c.dvs||{}).forEach(([ct,list])=>(list||[]).forEach(d=>(d.subs||[]).forEach(s=>allSubs.push({...s,ct}))));
+  const lastSubD=allSubs.length?allSubs.map(s=>s.date).sort().slice(-1)[0]:null;
+  const subLog=allSubs.length?`
+    <div class="sub-log">
+      <div class="sub-log-head">
+        <span>Sustituciones (${allSubs.length})</span>
+        <span class="sub-log-date">Última: ${fmtD(lastSubD)}</span>
+      </div>
+      <div class="sub-log-rows">
+        ${allSubs.sort((a,b)=>b.date.localeCompare(a.date)).map(s=>{
+          const ci=COUNTRIES[s.ct]||{flag:'',name:''};
+          return`<div class="sub-log-row">
+            <span style="font-size:15px;">${ci.flag}</span>
+            <span class="sub-out">${s.outCode}</span>
+            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:#999;flex-shrink:0;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            <span class="sub-in">${s.inCode}</span>
+            <span class="sub-date">${fmtD(s.date)}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`:'';
+  return`<div class="camp-card">
+    <div class="camp-head" data-toggle="${c.id}">
+      <div style="flex:1;min-width:0;">
+        <div class="camp-name">${c.name}</div>
+        <div class="camp-meta">
+          <span>${fmtD(c.startDate)} → ${fmtD(c.endDate)}</span>
+          <span>${flags}</span>
+          <span>${total} DV${total!==1?'s':''}</span>
+          ${allSubs.length?`<span style="color:#b03058;font-weight:600;">${allSubs.length} sustitución${allSubs.length>1?'es':''} · última: ${fmtD(lastSubD)}</span>`:''}
+        </div>
+      </div>
+      <div class="camp-right">
+        ${badges}
+        <button class="icon-btn" data-edit-camp="${c.id}"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <svg class="chevron ${coll?'':'open'}" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+    </div>
+    ${coll?'':`
+    <div class="camp-body">${(c.countries||[]).map(ct=>renderCtry(c,ct)).join('')}</div>
+    ${subLog}
+    <div class="camp-foot">
+      <button class="btn sm" data-add-dv="${c.id}"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="12" height="12"><path d="M12 5v14M5 12h14"/></svg>Agregar DV</button>
+      <button class="btn sm" data-bulk="${c.id}"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="12" height="12"><path d="M8 6h13M8 12h13M8 18h13"/></svg>En masa</button>
+      <button class="btn sm" data-import="${c.id}"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="12" height="12"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>Importar Excel</button>
+      <button class="btn sm" data-sub-camp="${c.id}"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="12" height="12"><path d="M3 12a9 9 0 105.168-8.144M3 3v5h5"/></svg>Registrar sustitución</button>
+      <button class="btn sm danger" data-del-camp="${c.id}"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="12" height="12"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>Eliminar</button>
+    </div>`}
+  </div>`;
+}
+
+function renderCtry(c,ct){
+  if(fCountry&&ct!==fCountry)return'';
+  const info=COUNTRIES[ct]||{name:ct,flag:''};
+  const dvs=(c.dvs||{})[ct]||[];const ck=c.id+'_'+ct;const coll=state.ctryCollapsed[ck];
+  const shown=fStatus?dvs.filter(d=>d.status===fStatus):dvs;
+  const active=dvs.filter(d=>d.status==='active').length;
+  const nw=dvs.filter(d=>d.status==='new').length;
+  const paused=dvs.filter(d=>d.status==='paused').length;
+  return`<div class="ctry-sec">
+    <div class="ctry-head" data-ctoggle="${ck}">
+      <div class="ctry-left">
+        <span class="ctry-flag">${info.flag}</span>
+        <span class="ctry-name">${info.name}</span>
+        <span class="ctry-count">${dvs.length} DV${dvs.length!==1?'s':''}</span>
+      </div>
+      <div class="ctry-right">
+        ${active?`<span class="badge active">${active}</span>`:''}
+        ${nw?`<span class="badge new">${nw} nuevo${nw>1?'s':''}</span>`:''}
+        ${paused?`<span class="badge paused">${paused} pausado${paused>1?'s':''}</span>`:''}
+        <button class="btn sm ghost" data-add-dv-ctry="${c.id}|${ct}" style="margin-left:4px;">+ DV</button>
+        <svg class="chevron ${coll?'':'open'}" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+    </div>
+    ${coll?'':`
+      <div class="dv-grid">${shown.length?shown.map(d=>renderCard(c.id,ct,d)).join(''):'<div style="color:var(--gray-4);font-size:12px;padding:8px 0;">Sin DVs con este estado.</div>'}</div>
+      ${dvs.length?renderListPanel(c.id,ct,dvs):''}
+    `}
+  </div>`;
+}
+
+function renderCard(cid,ct,d){
+  const img=d.img?`<img src="${d.img}" alt="${d.code}"/>`:`<div class="no-img"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>sin imagen</div>`;
+  const overlay=d.status==='paused'?'<div class="thumb-overlay paused">Sin Stock</div>':'';
+  const sc=(d.stock===0||d.stock==='0')?'var(--orange)':(d.stock!==''&&Number(d.stock)<=5?'var(--orange)':'var(--black)');
+  const stk=d.stock!=null&&d.stock!==''?`<span style="font-weight:600;color:${sc};">${d.stock}</span> un.`:`<span style="color:var(--gray-3);">—</span>`;
+  return`<div class="dv-card ${d.status==='paused'?'is-paused':''}">
+    <div class="dv-thumb" data-upload="${cid}|${ct}|${d.id}">
+      ${img}${overlay}
+      <div class="thumb-upload" style="cursor:pointer;"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div>
+    </div>
+    <div class="dv-info">
+      <div class="dv-code">${d.code}</div>
+      <div class="dv-stock"><svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>${stk}</div>
+      <div class="dv-row">
+        <span class="badge ${d.status}">${STATUS[d.status]||d.status}</span>
+        <div class="dv-actions">
+          <button class="icon-btn" data-edit-dv="${cid}|${ct}|${d.id}"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="icon-btn" data-del-dv="${cid}|${ct}|${d.id}"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderListPanel(cid,ct,dvs){
+  const vis=dvs.filter(d=>d.status==='active'||d.status==='new');if(!vis.length)return'';
+  const pid=`lp_${cid}_${ct}`;
+  const lines=vis.map(d=>d.code+(d.stock!=null&&d.stock!==''?` [stock: ${d.stock}]`:''));
+  const txt=lines.join('\n');
+  return`<div class="list-panel">
+    <div class="list-head">
+      <span>Copiar lista — activos y nuevos (${vis.length})</span>
+      <button class="copy-btn" id="cp_${pid}" onclick="copyList('${pid}',\`${txt.replace(/`/g,"'")}\`)">
+        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copiar
+      </button>
+    </div>
+    <div class="list-body" id="${pid}">${lines.join('\n')}</div>
+  </div>`;
+}
+window.copyList=function(pid,txt){
+  navigator.clipboard.writeText(txt).then(()=>{
+    const b=document.getElementById('cp_'+pid);
+    if(b){b.className='copy-btn ok';b.textContent='✓ Copiado';setTimeout(()=>{b.className='copy-btn';b.innerHTML='<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copiar';},2000);}
+    toast('¡Lista copiada!');
+  });
+};
+
+function attachEvents(){
+  document.querySelectorAll('[data-toggle]').forEach(el=>el.addEventListener('click',e=>{
+    if(e.target.closest('[data-edit-camp],[data-del-camp],[data-add-dv],[data-bulk],[data-sub-camp]'))return;
+    const id=el.dataset.toggle;state.collapsed[id]=!state.collapsed[id];saveLocal();render();
+  }));
+  document.querySelectorAll('[data-ctoggle]').forEach(el=>el.addEventListener('click',e=>{
+    if(e.target.closest('[data-add-dv-ctry]'))return;
+    const ck=el.dataset.ctoggle;state.ctryCollapsed[ck]=!state.ctryCollapsed[ck];saveLocal();render();
+  }));
+  document.querySelectorAll('[data-edit-camp]').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();openEditCamp(el.dataset.editCamp);}));
+  document.querySelectorAll('[data-del-camp]').forEach(el=>el.addEventListener('click',()=>{if(confirm('¿Eliminar campaña y todos sus DVs?')){state.campaigns=state.campaigns.filter(c=>c.id!==el.dataset.delCamp);save();}}));
+  document.querySelectorAll('[data-add-dv]').forEach(el=>el.addEventListener('click',()=>openAddDV(el.dataset.addDv,null)));
+  document.querySelectorAll('[data-add-dv-ctry]').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();const[cid,ct]=el.dataset.addDvCtry.split('|');openAddDV(cid,ct);}));
+  document.querySelectorAll('[data-bulk]').forEach(el=>el.addEventListener('click',()=>openBulk(el.dataset.bulk)));
+  document.querySelectorAll('[data-import]').forEach(el=>el.addEventListener('click',()=>openImport(el.dataset.import)));
+  document.querySelectorAll('[data-sub-camp]').forEach(el=>el.addEventListener('click',()=>openSub(el.dataset.subCamp)));
+  document.querySelectorAll('[data-edit-dv]').forEach(el=>el.addEventListener('click',()=>{const[cid,ct,did]=el.dataset.editDv.split('|');openEditDV(cid,ct,did);}));
+  document.querySelectorAll('[data-del-dv]').forEach(el=>el.addEventListener('click',()=>{const[cid,ct,did]=el.dataset.delDv.split('|');if(confirm('¿Eliminar este DV?')){const c=state.campaigns.find(x=>x.id===cid);if(c&&c.dvs[ct])c.dvs[ct]=c.dvs[ct].filter(d=>d.id!==did);save();}}));
+  document.querySelectorAll('[data-upload]').forEach(el=>el.addEventListener('click',()=>{
+    const[cid,ct,did]=el.dataset.upload.split('|');
+    pendingImg=url=>{const c=state.campaigns.find(x=>x.id===cid);if(c&&c.dvs[ct]){const d=c.dvs[ct].find(x=>x.id===did);if(d){d.img=url;save();toast('¡Imagen actualizada!');}}};
+    document.getElementById('imgInput').click();
+  }));
+}
+
+function showModal(html){document.getElementById('modalContainer').innerHTML=`<div class="modal-backdrop" id="backdrop"><div class="modal" onclick="event.stopPropagation()">${html}</div></div>`;document.getElementById('backdrop').addEventListener('click',closeModal);}
+window.closeModal=()=>document.getElementById('modalContainer').innerHTML='';
+
+window.openNewCamp=function(){
+  showModal(`<div class="modal-head"><h2>Nueva campaña</h2><button class="btn ghost" onclick="closeModal()">✕</button></div>
+  <div class="modal-body">
+    <div class="form-row"><label>Nombre *</label><input id="f_cn" placeholder="ej: Holiday 2025"/></div>
+    <div class="form-grid"><div class="form-row"><label>Inicio</label><input type="date" id="f_cs"/></div><div class="form-row"><label>Fin</label><input type="date" id="f_ce"/></div></div>
+    <div class="form-row"><label>Países</label><div class="flags-picker" id="fp">${Object.entries(COUNTRIES).map(([k,v])=>`<div class="flag-opt" data-code="${k}">${v.flag} ${v.name}</div>`).join('')}</div></div>
+  </div>
+  <div class="modal-foot"><button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveNewCamp()">Crear campaña</button></div>`);
+  document.querySelectorAll('.flag-opt').forEach(el=>el.addEventListener('click',()=>el.classList.toggle('sel')));
+};
+window.saveNewCamp=function(){
+  const name=document.getElementById('f_cn').value.trim();if(!name){alert('Ingresa el nombre.');return;}
+  const countries=[...document.querySelectorAll('.flag-opt.sel')].map(el=>el.dataset.code);
+  const dvs={};countries.forEach(k=>{dvs[k]=[];});
+  state.campaigns.push({id:cuid(),name,startDate:document.getElementById('f_cs').value,endDate:document.getElementById('f_ce').value,countries,dvs});
+  save();closeModal();
+};
+function openEditCamp(cid){
+  const c=state.campaigns.find(x=>x.id===cid);if(!c)return;
+  showModal(`<div class="modal-head"><h2>Editar campaña</h2><button class="btn ghost" onclick="closeModal()">✕</button></div>
+  <div class="modal-body">
+    <div class="form-row"><label>Nombre *</label><input id="f_cn" value="${c.name}"/></div>
+    <div class="form-grid"><div class="form-row"><label>Inicio</label><input type="date" id="f_cs" value="${c.startDate||''}"/></div><div class="form-row"><label>Fin</label><input type="date" id="f_ce" value="${c.endDate||''}"/></div></div>
+    <div class="form-row"><label>Países</label><div class="flags-picker" id="fp">${Object.entries(COUNTRIES).map(([k,v])=>`<div class="flag-opt ${c.countries.includes(k)?'sel':''}" data-code="${k}">${v.flag} ${v.name}</div>`).join('')}</div></div>
+  </div>
+  <div class="modal-foot"><button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveEditCamp('${cid}')">Guardar</button></div>`);
+  document.querySelectorAll('.flag-opt').forEach(el=>el.addEventListener('click',()=>el.classList.toggle('sel')));
+}
+window.saveEditCamp=function(cid){
+  const c=state.campaigns.find(x=>x.id===cid);if(!c)return;
+  const name=document.getElementById('f_cn').value.trim();if(!name){alert('Ingresa el nombre.');return;}
+  const nc=[...document.querySelectorAll('.flag-opt.sel')].map(el=>el.dataset.code);
+  nc.forEach(k=>{if(!c.dvs[k])c.dvs[k]=[];});
+  c.name=name;c.startDate=document.getElementById('f_cs').value;c.endDate=document.getElementById('f_ce').value;c.countries=nc;
+  save();closeModal();
+};
+function openAddDV(cid,fixedCt){
+  const c=state.campaigns.find(x=>x.id===cid);if(!c)return;
+  const ctF=fixedCt?`<input type="hidden" id="f_ct" value="${fixedCt}"/><div style="font-size:13px;padding:5px 0;font-weight:500;">${COUNTRIES[fixedCt]?.flag||''} ${COUNTRIES[fixedCt]?.name||fixedCt}</div>`
+    :`<select id="f_ct">${c.countries.map(k=>`<option value="${k}">${COUNTRIES[k].flag} ${COUNTRIES[k].name}</option>`).join('')}</select>`;
+  showModal(`<div class="modal-head"><h2>Agregar DV</h2><button class="btn ghost" onclick="closeModal()">✕</button></div>
+  <div class="modal-body">
+    <div class="form-row"><label>País *</label>${ctF}</div>
+    <div class="form-row"><label>Código *</label><input id="f_dc" placeholder="ej: DV-BR-001" style="font-family:monospace;"/></div>
+    <div class="form-grid">
+      <div class="form-row"><label>Estado</label><select id="f_ds">${Object.entries(STATUS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div>
+      <div class="form-row"><label>Stock (unidades)</label><input type="number" id="f_dsk" placeholder="100" min="0"/></div>
+    </div>
+    <div class="form-row"><label>Imagen</label>
+      <div class="img-area" id="addImgArea"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Clic para subir imagen</div>
+      <img id="addImgPrev" class="img-preview" style="display:none;margin-top:8px;"/><input type="hidden" id="f_di" value=""/>
+    </div>
+  </div>
+  <div class="modal-foot"><button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveAddDV('${cid}')">Agregar</button></div>`);
+  document.getElementById('addImgArea').addEventListener('click',()=>{pendingImg=url=>{document.getElementById('f_di').value=url;document.getElementById('addImgPrev').src=url;document.getElementById('addImgPrev').style.display='block';document.getElementById('addImgArea').style.display='none';};document.getElementById('imgInput').click();});
+  // Auto-busca imagem ao sair do campo de código
+  document.getElementById('f_dc').addEventListener('blur',()=>{
+    const code=document.getElementById('f_dc').value.trim();
+    if(!code||document.getElementById('f_di').value)return;
+    const area=document.getElementById('addImgArea');
+    const prev=document.getElementById('addImgPrev');
+    if(area)area.textContent='🔍 Buscando imagen…';
+    autoLoadImg(code,url=>{
+      if(url){
+        document.getElementById('f_di').value=url;
+        if(prev){prev.src=url;prev.style.display='block';}
+        if(area)area.style.display='none';
+        toast('✓ Imagen cargada automáticamente');
+      } else {
+        if(area){area.innerHTML='<svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Clic para subir imagen';area.style.display='block';}
+      }
+    });
+  });
+}
+window.saveAddDV=function(cid){
+  const c=state.campaigns.find(x=>x.id===cid);if(!c)return;
+  const code=document.getElementById('f_dc').value.trim().toUpperCase();if(!code){alert('Ingresa el código.');return;}
+  const ct=document.getElementById('f_ct').value;if(!c.dvs[ct])c.dvs[ct]=[];
+  const sk=document.getElementById('f_dsk').value;
+  c.dvs[ct].push({id:uid(),code,status:document.getElementById('f_ds').value,stock:sk!==''?Number(sk):'',img:document.getElementById('f_di').value,subs:[]});
+  save();closeModal();toast('¡DV agregado!');
+};
+function openEditDV(cid,ct,did){
+  const c=state.campaigns.find(x=>x.id===cid);if(!c)return;
+  const d=(c.dvs[ct]||[]).find(x=>x.id===did);if(!d)return;
+  showModal(`<div class="modal-head"><h2>Editar DV</h2><button class="btn ghost" onclick="closeModal()">✕</button></div>
+  <div class="modal-body">
+    <div class="form-row"><label>Código *</label><input id="f_dc" value="${d.code}" style="font-family:monospace;"/></div>
+    <div class="form-grid">
+      <div class="form-row"><label>Estado</label><select id="f_ds">${Object.entries(STATUS).map(([k,v])=>`<option value="${k}"${d.status===k?' selected':''}>${v}</option>`).join('')}</select></div>
+      <div class="form-row"><label>Stock (unidades)</label><input type="number" id="f_dsk" value="${d.stock!=null?d.stock:''}" min="0"/></div>
+    </div>
+    <div class="form-row"><label>Imagen</label>
+      ${d.img?`<img src="${d.img}" class="img-preview" id="eip" style="margin-bottom:8px;"/>`:`<div class="img-area" id="eip2"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="width:20px;height:20px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Subir imagen</div>`}
+      <input type="hidden" id="f_di" value="${d.img||''}"/>
+      <button class="btn sm ghost" id="chgImg" style="margin-top:6px;">Cambiar imagen</button>
+    </div>
+  </div>
+  <div class="modal-foot"><button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveEditDV('${cid}','${ct}','${did}')">Guardar</button></div>`);
+  document.getElementById('chgImg').addEventListener('click',()=>{pendingImg=url=>{document.getElementById('f_di').value=url;const p=document.getElementById('eip');if(p)p.src=url;};document.getElementById('imgInput').click();});
+}
+window.saveEditDV=function(cid,ct,did){
+  const c=state.campaigns.find(x=>x.id===cid);if(!c)return;
+  const d=(c.dvs[ct]||[]).find(x=>x.id===did);if(!d)return;
+  const code=document.getElementById('f_dc').value.trim().toUpperCase();if(!code){alert('Ingresa el código.');return;}
+  d.code=code;d.status=document.getElementById('f_ds').value;
+  const sk=document.getElementById('f_dsk').value;d.stock=sk!==''?Number(sk):'';
+  const img=document.getElementById('f_di').value;if(img)d.img=img;
+  save();closeModal();toast('¡DV actualizado!');
+};
+function openSub(cid){
+  const c=state.campaigns.find(x=>x.id===cid);if(!c)return;
+  const today=new Date().toISOString().slice(0,10);
+  const opts=[];
+  (c.countries||[]).forEach(ct=>((c.dvs||{})[ct]||[]).filter(d=>d.status==='active'||d.status==='new').forEach(d=>{
+    opts.push(`<option value="${ct}|${d.id}">${COUNTRIES[ct]?.flag||''} ${d.code} (${STATUS[d.status]})</option>`);
+  }));
+  if(!opts.length){toast('No hay DVs Activos o Nuevos para sustituir.');return;}
+  showModal(`<div class="modal-head"><h2>Registrar sustitución</h2><button class="btn ghost" onclick="closeModal()">✕</button></div>
+  <div class="modal-body">
+    <div class="sub-info-box"><strong>DV que sale por falta de stock</strong> → pasará a Pausado automáticamente.</div>
+    <div class="form-row"><label>DV que sale *</label><select id="f_out">${opts.join('')}</select></div>
+    <div class="form-row"><label>Código del nuevo DV que entra *</label><input id="f_nc" placeholder="ej: DV-BR-005" style="font-family:monospace;"/></div>
+    <div class="form-grid">
+      <div class="form-row"><label>Stock del nuevo DV</label><input type="number" id="f_nsk" placeholder="80" min="0"/></div>
+      <div class="form-row"><label>Fecha</label><input type="date" id="f_sd" value="${today}"/></div>
+    </div>
+    <div class="form-row"><label>Imagen del nuevo DV</label>
+      <div class="img-area" id="subImgArea"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="width:20px;height:20px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Subir imagen (opcional)</div>
+      <img id="subImgPrev" class="img-preview" style="display:none;margin-top:8px;"/><input type="hidden" id="f_ni" value=""/>
+    </div>
+  </div>
+  <div class="modal-foot"><button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveSub('${cid}')">Confirmar sustitución</button></div>`);
+  document.getElementById('subImgArea').addEventListener('click',()=>{pendingImg=url=>{document.getElementById('f_ni').value=url;document.getElementById('subImgPrev').src=url;document.getElementById('subImgPrev').style.display='block';document.getElementById('subImgArea').style.display='none';};document.getElementById('imgInput').click();});
+}
+window.saveSub=function(cid){
+  const c=state.campaigns.find(x=>x.id===cid);if(!c)return;
+  const[ct,outId]=document.getElementById('f_out').value.split('|');
+  const newCode=document.getElementById('f_nc').value.trim().toUpperCase();if(!newCode){alert('Ingresa el código del nuevo DV.');return;}
+  const idx=(c.dvs[ct]||[]).findIndex(x=>x.id===outId);if(idx<0)return;
+  const old=c.dvs[ct][idx];const dt=document.getElementById('f_sd').value;
+  const sk=document.getElementById('f_nsk').value;const img=document.getElementById('f_ni').value;
+  old.status='paused';old.pausedDate=dt;
+  c.dvs[ct].splice(idx+1,0,{id:uid(),code:newCode,status:'new',stock:sk!==''?Number(sk):'',img:img||'',subs:[{outCode:old.code,inCode:newCode,date:dt,ct}]});
+  save();closeModal();toast(`${old.code} → ${newCode} registrado`);
+};
+function openBulk(cid){
+  const c=state.campaigns.find(x=>x.id===cid);if(!c)return;
+  showModal(`<div class="modal-head"><h2>Agregar DVs en masa</h2><button class="btn ghost" onclick="closeModal()">✕</button></div>
+  <div class="modal-body">
+    <div class="form-row"><label>País *</label><select id="f_bct">${c.countries.map(k=>`<option value="${k}">${COUNTRIES[k].flag} ${COUNTRIES[k].name}</option>`).join('')}</select></div>
+    <div class="form-row"><label>Estado por defecto</label><select id="f_bst">${Object.entries(STATUS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div>
+    <div class="form-row"><label>Pega la lista de DVs (máx. 20)</label>
+      <div class="bulk-box"><textarea id="f_bl" placeholder="563816C02&#10;593816C03  30&#10;593816C02&#9;15&#10;..."></textarea></div>
+      <div style="font-size:11px;color:var(--gray-4);margin-top:5px;">Acepta código solo <strong>o</strong> código + stock separado por espacio o tab. Ej: <code style="background:var(--gray-2);padding:1px 4px;border-radius:3px;">563816C02  31</code></div>
+    </div>
+  </div>
+  <div class="modal-foot"><button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveBulk('${cid}')">Agregar todos</button></div>`);
+}
+window.saveBulk=function(cid){
+  const c=state.campaigns.find(x=>x.id===cid);if(!c)return;
+  const ct=document.getElementById('f_bct').value;
+  const status=document.getElementById('f_bst').value;
+  const lines=document.getElementById('f_bl').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,20);
+  if(!lines.length){alert('Ingresa al menos un código.');return;}
+  if(!c.dvs[ct])c.dvs[ct]=[];
+  const parsed=lines.map(line=>{
+    // Split by tab or 2+ spaces
+    const parts=line.split(/\t|  +/);
+    const code=parts[0].trim().toUpperCase();
+    const stock=parts[1]!==undefined&&parts[1].trim()!==''?Number(parts[1].trim()):'';
+    return{code,stock};
+  }).filter(r=>r.code);
+  parsed.forEach(r=>c.dvs[ct].push({id:uid(),code:r.code,status,stock:r.stock,img:'',subs:[]}));
+  save();closeModal();toast(`¡${parsed.length} DVs agregados! Cargando imágenes…`);
+  // Auto-load images for all newly added DVs
+  const newDvs=c.dvs[ct].slice(-parsed.length);
+  let loaded=0;
+  newDvs.forEach(dv=>{
+    if(dv.img)return;
+    autoLoadImg(dv.code,url=>{if(url){dv.img=url;loaded++;if(loaded===newDvs.length)save();}});
+  });
+};
+
+function openImport(cid){
+  const c=state.campaigns.find(x=>x.id===cid);if(!c)return;
+  showModal(`<div class="modal-head"><h2>Importar Excel / CSV</h2><button class="btn ghost" onclick="closeModal()">✕</button></div>
+  <div class="modal-body">
+    <div class="form-row"><label>País *</label><select id="f_ict">${c.countries.map(k=>`<option value="${k}">${COUNTRIES[k].flag} ${COUNTRIES[k].name}</option>`).join('')}</select></div>
+    <div class="form-row"><label>Estado padrão dos DVs importados</label><select id="f_ist">${Object.entries(STATUS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div>
+    <div class="form-row"><label>Archivo Excel o CSV</label>
+      <div class="img-area" id="xlsArea" style="cursor:pointer;">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Clic para seleccionar archivo (.xlsx, .xls, .csv)
+      </div>
+      <div id="xlsPreview" style="margin-top:10px;display:none;">
+        <div style="font-size:11px;font-weight:600;color:var(--gray-5);margin-bottom:6px;">Vista previa (primeros 5 DVs):</div>
+        <div id="xlsPreviewRows" style="font-family:monospace;font-size:12px;background:var(--gray-1);padding:10px;border-radius:6px;line-height:1.8;"></div>
+        <div id="xlsCount" style="font-size:11px;color:var(--gray-4);margin-top:6px;"></div>
+      </div>
+    </div>
+    <div style="background:var(--blue-bg);border:1px solid #b0c8f0;border-radius:6px;padding:10px 12px;font-size:12px;color:var(--blue);">
+      <strong>Formato esperado:</strong> columnas <code style="background:rgba(0,0,0,.06);padding:1px 5px;border-radius:3px;">DV</code> y <code style="background:rgba(0,0,0,.06);padding:1px 5px;border-radius:3px;">QTY</code> — exactamente como tu planilla actual.
+    </div>
+  </div>
+  <div class="modal-foot"><button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn primary" id="btnConfirmImport" onclick="confirmImport('${cid}')" disabled style="opacity:.4;">Importar DVs</button></div>`);
+
+  let parsedRows=[];
+  document.getElementById('xlsArea').addEventListener('click',()=>document.getElementById('xlsInput').click());
+  document.getElementById('xlsInput').addEventListener('change',async e=>{
+    const file=e.target.files[0];if(!file)return;
+    parsedRows=await parseFile(file);
+    window._parsedRows=parsedRows;
+    if(!parsedRows.length){alert('No se encontraron DVs en el archivo. Verifica que las columnas se llamen DV y QTY.');return;}
+    const prev=parsedRows.slice(0,5).map(r=>`${r.code}   stock: ${r.stock}`).join('\n');
+    document.getElementById('xlsPreviewRows').textContent=prev;
+    document.getElementById('xlsCount').textContent=`Total: ${parsedRows.length} DVs encontrados`;
+    document.getElementById('xlsPreview').style.display='block';
+    document.getElementById('xlsArea').style.display='none';
+    const btn=document.getElementById('btnConfirmImport');
+    btn.disabled=false;btn.style.opacity='1';
+    e.target.value='';
+  });
+  window._parsedRows=parsedRows;
+  window._parsedRowsSetter=rows=>{parsedRows=rows;};
+}
+
+async function parseFile(file){
+  return new Promise(resolve=>{
+    const name=file.name.toLowerCase();
+    if(name.endsWith('.csv')){
+      const reader=new FileReader();
+      reader.onload=e=>{
+        const rows=parseCSV(e.target.result);
+        resolve(rows);
+      };
+      reader.readAsText(file);
+    } else {
+      // XLSX via SheetJS CDN
+      const reader=new FileReader();
+      reader.onload=async e=>{
+        try{
+          if(!window.XLSX){
+            await loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
+          }
+          const wb=window.XLSX.read(e.target.result,{type:'array'});
+          const ws=wb.Sheets[wb.SheetNames[0]];
+          const json=window.XLSX.utils.sheet_to_json(ws,{defval:''});
+          const rows=json.map(r=>{
+            const code=String(r['DV']||r['dv']||r['Dv']||r['Código']||r['codigo']||r['Code']||'').trim().toUpperCase();
+            const stock=r['QTY']||r['qty']||r['Qty']||r['Stock']||r['stock']||r['STOCK']||r['Cantidad']||'';
+            return{code,stock:stock!==''&&stock!==null?Number(stock):''};
+          }).filter(r=>r.code);
+          resolve(rows);
+        }catch(err){alert('Error al leer el archivo: '+err.message);resolve([]);}
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  });
+}
+
+function parseCSV(text){
+  const lines=text.trim().split('\n');
+  if(!lines.length)return[];
+  const headers=lines[0].split(/[,;\t]/).map(h=>h.trim().replace(/"/g,'').toLowerCase());
+  const dvIdx=headers.findIndex(h=>h==='dv'||h==='code'||h==='código'||h==='codigo');
+  const qtyIdx=headers.findIndex(h=>h==='qty'||h==='stock'||h==='cantidad'||h==='quantity');
+  if(dvIdx<0)return[];
+  return lines.slice(1).map(line=>{
+    const cols=line.split(/[,;\t]/).map(v=>v.trim().replace(/"/g,''));
+    const code=(cols[dvIdx]||'').toUpperCase();
+    const stock=qtyIdx>=0&&cols[qtyIdx]!==''?Number(cols[qtyIdx]):'';
+    return{code,stock};
+  }).filter(r=>r.code);
+}
+
+function loadScript(src){
+  return new Promise((res,rej)=>{
+    const s=document.createElement('script');s.src=src;
+    s.onload=res;s.onerror=rej;document.head.appendChild(s);
+  });
+}
+
+window.confirmImport=function(cid){
+  const c=state.campaigns.find(x=>x.id===cid);if(!c)return;
+  const ct=document.getElementById('f_ict').value;
+  const status=document.getElementById('f_ist').value;
+  const rows=window._parsedRows||[];
+  if(!rows.length){alert('Nenhum DV para importar.');return;}
+  if(!c.dvs[ct])c.dvs[ct]=[];
+  rows.forEach(r=>c.dvs[ct].push({id:uid(),code:r.code,status,stock:r.stock,img:'',subs:[]}));
+  save();closeModal();toast(`¡${rows.length} DVs importados!`);
+};
+window.fetchAllImages=async function(){
+  const btn=document.getElementById('btnFetchImgs');
+  if(btn){btn.disabled=true;btn.textContent='🔍 Buscando…';}
+  let pending=0,found=0;
+  state.campaigns.forEach(c=>(c.countries||[]).forEach(ct=>(c.dvs[ct]||[]).forEach(d=>{if(!d.img)pending++;})));
+  if(!pending){toast('Todos los DVs ya tienen imagen.');if(btn){btn.disabled=false;btn.innerHTML='<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Buscar imágenes';}return;}
+  let done=0;
+  state.campaigns.forEach(c=>(c.countries||[]).forEach(ct=>(c.dvs[ct]||[]).forEach(d=>{
+    if(d.img)return;
+    autoLoadImg(d.code,url=>{
+      done++;
+      if(url){d.img=url;found++;}
+      if(done===pending){
+        save();
+        toast(`✓ ${found} imágenes cargadas de ${pending} DVs sin foto`);
+        if(btn){btn.disabled=false;btn.innerHTML='<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Buscar imágenes';}
+      }
+    });
+  })));
+};
+  const rows=[['Campaña','País','Código DV','Estado','Stock','Sustituciones','Última sustitución','DV anterior']];
+  state.campaigns.forEach(c=>(c.countries||[]).forEach(ct=>(c.dvs[ct]||[]).forEach(d=>{
+    const ls=(d.subs||[]).slice(-1)[0];
+    rows.push([c.name,COUNTRIES[ct]?.name||ct,d.code,STATUS[d.status]||d.status,d.stock??'',(d.subs||[]).length,ls?fmtD(ls.date):'',ls?ls.outCode:'']);
+  })));
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download='dvs_pandora_latam.csv';a.click();
+};
+init();
+</script>
+</body>
+</html>
