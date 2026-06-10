@@ -224,7 +224,9 @@ main { max-width: 1160px; margin: 0 auto; padding: 24px 32px; }
 <input type="file" id="imgInput" accept="image/*" style="display:none;"/>
 <input type="file" id="xlsInput" accept=".xlsx,.xls,.csv" style="display:none;"/>
 
-<script type="module">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script>
 const COUNTRIES={MX:{name:'México',flag:'🇲🇽'},BR:{name:'Brasil',flag:'🇧🇷'},PA:{name:'Panamá',flag:'🇵🇦'},CL:{name:'Chile',flag:'🇨🇱'},CO:{name:'Colombia',flag:'🇨🇴'},PE:{name:'Perú',flag:'🇵🇪'},AR:{name:'Argentina',flag:'🇦🇷'}};
 const STATUS={active:'Activo',paused:'Pausado',new:'Nuevo'};
 const LS='pandora_dv_v9';
@@ -258,17 +260,17 @@ function toast(msg){const e=document.getElementById('toast');e.textContent=msg;e
 window.toast=toast;
 function loadLocal(){try{const r=localStorage.getItem(LS);if(r)state=JSON.parse(r);}catch(e){}}
 function saveLocal(){state.lastUpdate=new Date().toISOString();localStorage.setItem(LS,JSON.stringify(state));}
-async function save(){saveLocal();if(fbOk)try{await window._fbSet(window._fbRef(window._db,'dvt'),state);}catch(e){}render();}
+async function save(){saveLocal();if(fbOk&&window._fbSave)try{await window._fbSave(state);}catch(e){}render();}
 
 async function initFB(cfg){
   try{
-    const{initializeApp}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
-    const{getDatabase,ref,set,get,onValue}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js');
-    const app=initializeApp(cfg);const dbi=getDatabase(app);
-    window._db=dbi;window._fbRef=ref;window._fbSet=set;fbOk=true;
-    const snap=await get(ref(dbi,'dvt'));
+    firebase.initializeApp(cfg);
+    const dbi=firebase.database();
+    fbOk=true;
+    const snap=await dbi.ref('dvt').once('value');
     if(snap.exists()){state={...state,...snap.val()};if(!state.collapsed)state.collapsed={};if(!state.ctryCollapsed)state.ctryCollapsed={};}
-    onValue(ref(dbi,'dvt'),s=>{if(s.exists()){state={...state,...s.val()};render();}});
+    dbi.ref('dvt').on('value',s=>{if(s.exists()){state={...state,...s.val()};render();}});
+    window._fbSave=async(data)=>dbi.ref('dvt').set(data);
     document.getElementById('fb-banner').className='ok';
     document.getElementById('fb-banner').textContent='✅ Firebase conectado — datos sincronizados en tiempo real con el equipo.';
   }catch(e){
