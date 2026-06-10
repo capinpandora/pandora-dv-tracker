@@ -831,6 +831,7 @@ window.fetchAllImages=async function(){
     });
   })));
 };
+window.exportCSV=function(){
   const rows=[['Campaña','País','Código DV','Estado','Stock','Sustituciones','Última sustitución','DV anterior']];
   state.campaigns.forEach(c=>(c.countries||[]).forEach(ct=>(c.dvs[ct]||[]).forEach(d=>{
     const ls=(d.subs||[]).slice(-1)[0];
